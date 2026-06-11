@@ -32,6 +32,13 @@ class CgtFileAdapter(
             // Allow clicking the entire row to toggle checkbox
             binding.root.setOnClickListener {
                 binding.checkBox.isChecked = !binding.checkBox.isChecked
+                // Always check for a valid position before using it
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    binding.llHeadrer.tag = position
+                } else {
+                    binding.llHeadrer.tag = null
+\                }
             }
         }
     }

@@ -3,18 +3,23 @@ package org.appdevforall.templatemanager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import org.appdevforall.templatemanager.adapters.CgtFileAdapter
 import org.appdevforall.templatemanager.databinding.ActivityMainBinding
 import org.appdevforall.templatemanager.models.CgtFileItem
 import org.json.JSONObject
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -114,9 +119,30 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Display selection list
-        Toast.makeText(this, "Loaded ${selectedUris.size} file(s) safely!", Toast.LENGTH_LONG).show()
+        selectedUris.forEach { cgtUri ->
+            val sourceFile = File(Environment.getExternalStorageDirectory(), "Download/your_file.txt")
+            copyUriFileToAppDir(cgtFile, )
+        }
 
+        // Display selection list
+        Toast.makeText(this, "Installed ${selectedUris.size} file(s) into Code On the Go!", Toast.LENGTH_LONG).show()
+
+    }
+
+    fun copyUriFileToAppDir(sourceUri: Uri): File? {
+        //val destinationFile = File(filesDir, destinationFileName)
+
+        return try {
+            contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                FileOutputStream(destinationFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            destinationFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     /**
