@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TemplateManager</string>
+    <string name="version">"Version: "</string>
 </resources>

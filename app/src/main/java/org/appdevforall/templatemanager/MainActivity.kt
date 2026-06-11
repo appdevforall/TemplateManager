@@ -3,6 +3,7 @@ package org.appdevforall.templatemanager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import org.appdevforall.templatemanager.adapters.CgtFileAdapter
 import org.appdevforall.templatemanager.databinding.ActivityMainBinding
 import org.appdevforall.templatemanager.models.CgtFileItem
+import org.json.JSONObject
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipEntry
@@ -80,10 +82,20 @@ class MainActivity : AppCompatActivity() {
         files?.forEach { file ->
             // Check that it's a file type and matches the extension criteria
             if (file.isFile && file.name?.endsWith(".cgt", ignoreCase = true) == true) {
+                //Extract the meta info from template.json
+                val templateJson = readCgtAsZipArchive(file.uri)
+                Log.i("TOC", "{templateJson}")
+                val jsonObj = JSONObject(templateJson)
+                //TODO add author's name and email address [Joel]
+
                 fileList.add(
                     CgtFileItem(
                         uri = file.uri,
-                        name = file.name ?: "Unknown File"
+                        name = file.name ?: "Unknown File",
+                        templateName = "Template Name: " + jsonObj["name"].toString(),
+                        templateDesc =  "Description: " + jsonObj["description"].toString(),
+                        templateVersion = "Version: " +  jsonObj["version"].toString()
+
                     )
                 )
             }
@@ -103,17 +115,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Display selection list
-        Toast.makeText(this, "Loaded ${selectedUris.size} files safely!", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Loaded ${selectedUris.size} file(s) safely!", Toast.LENGTH_LONG).show()
 
-        // If you need to actually read text/bytes from one of these selected files, do this:
-        // contentResolver.openInputStream(selectedUris[0]).use { stream -> ... }
     }
 
     /**
      * Opens a .cgt file wrapper as a ZIP container and extracts all internal files.
      * Returns a map of inner filenames to their raw uncompressed bytes.
      */
-    private fun readCgtAsZipArchive(fileUri: Uri): Map<String, ByteArray> {
+    private fun readCgtAsZipArchive(fileUri: Uri): String {
         val decompressedContents = mutableMapOf<String, ByteArray>()
 
         try {
@@ -124,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 
                     while (entry != null) {
                         // Ignore directory entries, focus on compressed data payloads
-                        if (!entry.isDirectory) {
+                        if (!entry.isDirectory && entry.name.contains("template.json")) {
                             val outputBuffer = ByteArrayOutputStream()
                             val buffer = ByteArray(1024)
                             var bytesRead = zipStream.read(buffer)
@@ -137,6 +147,7 @@ class MainActivity : AppCompatActivity() {
                             // Store the inner file name and its extracted data bytes
                             decompressedContents[entry.name] = outputBuffer.toByteArray()
                             zipStream.closeEntry()
+                            return outputBuffer.toString()
                         }
                         entry = zipStream.nextEntry
                     }
@@ -146,7 +157,7 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
-        return decompressedContents
+        return ""
     }
 
 }

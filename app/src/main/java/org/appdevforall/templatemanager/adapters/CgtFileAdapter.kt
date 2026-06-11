@@ -3,6 +3,7 @@ package org.appdevforall.templatemanager.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import org.appdevforall.templatemanager.R
 import org.appdevforall.templatemanager.models.CgtFileItem
 import org.appdevforall.templatemanager.databinding.ItemCgtFileBinding
 import java.io.File
@@ -16,6 +17,9 @@ class CgtFileAdapter(
 
         fun bind(item: CgtFileItem) {
             binding.tvFileName.text = item.name
+            binding.tvTemplateName.text = item.templateName
+            binding.tvTemplateDesc.text = item.templateDesc
+            binding.tvTemplateVersion.text = item.templateVersion
 
             // Unset listener before altering state to prevent recycling bugs
             binding.checkBox.setOnCheckedChangeListener(null)
