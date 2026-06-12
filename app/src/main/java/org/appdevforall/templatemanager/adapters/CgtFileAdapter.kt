@@ -3,10 +3,8 @@ package org.appdevforall.templatemanager.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import org.appdevforall.templatemanager.R
-import org.appdevforall.templatemanager.models.CgtFileItem
 import org.appdevforall.templatemanager.databinding.ItemCgtFileBinding
-import java.io.File
+import org.appdevforall.templatemanager.models.CgtFileItem
 
 class CgtFileAdapter(
     private val items: List<CgtFileItem>
@@ -38,7 +36,7 @@ class CgtFileAdapter(
                     binding.llHeadrer.tag = position
                 } else {
                     binding.llHeadrer.tag = null
-\                }
+                }
             }
         }
     }
@@ -57,7 +55,7 @@ class CgtFileAdapter(
     override fun getItemCount(): Int = items.size
 
     // Helper method to retrieve selected files
-    fun getSelectedUris(): List<android.net.Uri> {
-        return items.filter { it.isChecked }.map { it.uri }
+    fun getSelectedItems(): List<CgtFileItem> {
+        return items.filter { it.isChecked }.map { it}
     }
 }

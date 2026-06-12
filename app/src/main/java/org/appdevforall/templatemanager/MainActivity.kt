@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnLoad.setOnClickListener {
-            val selectedUris = adapter.getSelectedUris()
-            handleLoadedFiles(selectedUris)
+            val selectedItems = adapter.getSelectedItems()
+            handleLoadedFiles(selectedItems)
         }
     }
 
@@ -113,35 +113,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleLoadedFiles(selectedUris: List<Uri>) {
-        if (selectedUris.isEmpty()) {
+    private fun handleLoadedFiles(selectedItems: List<CgtFileItem>) {
+        if (selectedItems.isEmpty()) {
             Toast.makeText(this, "No files selected", Toast.LENGTH_SHORT).show()
             return
         }
 
-        selectedUris.forEach { cgtUri ->
-            val sourceFile = File(Environment.getExternalStorageDirectory(), "Download/your_file.txt")
-            copyUriFileToAppDir(cgtFile, )
+        selectedItems.forEach { cgtFileItem ->
+            val sourceFile = File(Environment.getExternalStorageDirectory(), cgtFileItem.name)
+            val destinationFile = File(filesDir, cgtFileItem.name)
+
+            copyUriFileToAppDir(cgtFileItem.uri, destinationFile)
         }
 
         // Display selection list
-        Toast.makeText(this, "Installed ${selectedUris.size} file(s) into Code On the Go!", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Installed ${selectedItems.size} template(s) into Code On the Go!", Toast.LENGTH_LONG).show()
 
     }
 
-    fun copyUriFileToAppDir(sourceUri: Uri): File? {
-        //val destinationFile = File(filesDir, destinationFileName)
-
-        return try {
+    private fun copyUriFileToAppDir(sourceUri: Uri, destinationFile: File): Boolean {
+        try {
             contentResolver.openInputStream(sourceUri)?.use { inputStream ->
                 FileOutputStream(destinationFile).use { outputStream ->
                     inputStream.copyTo(outputStream)
                 }
             }
-            destinationFile
+            return true
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            return false
         }
     }
 
